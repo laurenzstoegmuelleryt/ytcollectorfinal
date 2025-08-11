@@ -2,19 +2,22 @@ from telethon import TelegramClient, events
 import re
 import os
 import requests
+import sys
 
-# Umgebungsvariablen von Render
-API_ID = int(os.environ.get("API_ID") or input("API_ID: "))
-API_HASH = os.environ.get("API_HASH") or input("API_HASH: ")
+# Umgebungsvariablen
+API_ID = int(os.environ.get("API_ID"))
+API_HASH = os.environ.get("API_HASH")
 SESSION_NAME = os.environ.get("SESSION_NAME", "yt_session")
-CHANNEL_USERNAME = os.environ.get("CHANNEL_USERNAME")  # z. B. "meinChannelName" oder -100123456789
+CHANNEL_USERNAME = os.environ.get("CHANNEL_USERNAME")
 MAKE_WEBHOOK_URL = os.environ.get("MAKE_WEBHOOK_URL")
 
-# Client starten
+# Client erstellen
 client = TelegramClient(SESSION_NAME, API_ID, API_HASH)
 
 # Regex für YouTube-Links
-yt_pattern = re.compile(r"(https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)[\w\-]+)")
+yt_pattern = re.compile(
+    r"(https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)[\w\-]+)"
+)
 
 @client.on(events.NewMessage(chats=CHANNEL_USERNAME))
 async def handler(event):
@@ -23,8 +26,20 @@ async def handler(event):
     if yt_links:
         payload = {"links": yt_links, "message": text}
         requests.post(MAKE_WEBHOOK_URL, json=payload)
-        print(f"? YT-Links gesendet: {yt_links}")
+        print(f"✅ YT-Links gesendet: {yt_links}")
 
-print("?? Bot startet...")
-client.start(bot_token=os.environ.get("BOT_TOKEN"))
+print("🚀 Bot startet...")
+
+# Prüfen ob wir auf Render laufen
+running_on_render = os.environ.get("RENDER") is not None
+
+if running_on_render:
+    client.connect()
+    if not client.is_user_authorized():
+        print("❌ Keine gültige Session-Datei gefunden! Bitte lokal einloggen und neu deployen.")
+        sys.exit(1)
+else:
+    # Lokal: erlaubt interaktives Login
+    client.start()
+
 client.run_until_disconnected()
