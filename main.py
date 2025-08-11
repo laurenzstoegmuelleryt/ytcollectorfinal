@@ -26,5 +26,5 @@ async def handler(event):
         print(f"? YT-Links gesendet: {yt_links}")
 
 print("?? Bot startet...")
-client.start()
+client.start(bot_token=os.environ.get("BOT_TOKEN"))
 client.run_until_disconnected()
