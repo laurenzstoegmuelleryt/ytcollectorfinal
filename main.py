@@ -1,3 +1,5 @@
+from dotenv import load_dotenv
+load_dotenv()
 from telethon import TelegramClient, events
 import re
 import os
@@ -14,7 +16,7 @@ MAKE_WEBHOOK_URL = os.environ.get("MAKE_WEBHOOK_URL")
 # Client erstellen
 client = TelegramClient(SESSION_NAME, API_ID, API_HASH)
 
-# Regex für YouTube-Links
+# Regex f√ºr YouTube-Links
 yt_pattern = re.compile(
     r"(https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)[\w\-]+)"
 )
@@ -26,17 +28,17 @@ async def handler(event):
     if yt_links:
         payload = {"links": yt_links, "message": text}
         requests.post(MAKE_WEBHOOK_URL, json=payload)
-        print(f"✅ YT-Links gesendet: {yt_links}")
+        print(f"‚úÖ YT-Links gesendet: {yt_links}")
 
-print("🚀 Bot startet...")
+print("üöÄ Bot startet...")
 
-# Prüfen ob wir auf Render laufen
+# Pr√ºfen ob wir auf Render laufen
 running_on_render = os.environ.get("RENDER") is not None
 
 if running_on_render:
     client.connect()
     if not client.is_user_authorized():
-        print("❌ Keine gültige Session-Datei gefunden! Bitte lokal einloggen und neu deployen.")
+        print("‚ùå Keine g√ºltige Session-Datei gefunden! Bitte lokal einloggen und neu deployen.")
         sys.exit(1)
 else:
     # Lokal: erlaubt interaktives Login
